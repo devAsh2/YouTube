@@ -121,3 +121,87 @@ export const handleLoginValidation = (req, res, next) => {
 	// If validation passes, continue to next middleware
 	next();
 };
+
+// Video upload validation middleware with sanitization
+export const handleVideoValidation = (req, res, next) => {
+	const { title, thumbnailUrl, videoUrl, channelId, description } = req.body;
+	const errors = [];
+
+	// Sanitize inputs
+	req.body.title = sanitizeString(title);
+	req.body.description = sanitizeString(description);
+	req.body.thumbnailUrl = sanitizeString(thumbnailUrl);
+	req.body.videoUrl = sanitizeString(videoUrl);
+
+	// Title validation
+	if (!req.body.title) {
+		errors.push("Video title is required");
+	} else if (req.body.title.length < 1) {
+		errors.push("Video title cannot be empty");
+	} else if (req.body.title.length > 200) {
+		errors.push("Video title must not exceed 200 characters");
+	}
+
+	// Thumbnail URL validation
+	if (!req.body.thumbnailUrl) {
+		errors.push("Thumbnail URL is required");
+	} else if (
+		!/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(req.body.thumbnailUrl)
+	) {
+		errors.push(
+			"Please enter a valid thumbnail URL (jpg, jpeg, png, gif, or webp)",
+		);
+	}
+
+	// Video URL validation
+	if (!req.body.videoUrl) {
+		errors.push("Video URL is required");
+	} else if (
+		!/^https?:\/\/.+\.(mp4|avi|mov|wmv|flv|webm)$/i.test(req.body.videoUrl)
+	) {
+		errors.push(
+			"Please enter a valid video URL (mp4, avi, mov, wmv, flv, or webm)",
+		);
+	}
+
+	// Channel ID validation
+	if (!channelId) {
+		errors.push("Channel ID is required");
+	} else if (!mongoose.Types.ObjectId.isValid(channelId)) {
+		errors.push("Invalid channel ID format");
+	}
+
+	// If there are validation errors, return them
+	if (errors.length > 0) {
+		return res.status(400).json({
+			success: false,
+			error: "Validation failed",
+			details: errors,
+		});
+	}
+
+	// If validation passes, continue to next middleware
+	next();
+};
+
+export const handleSearchValidation = (req, res, next) => {
+	const { q } = req.query;
+
+	if (!q || q.trim().length === 0) {
+		return res.status(400).json({
+			success: false,
+			error: "Search query is required",
+		});
+	}
+
+	if (q.length > 100) {
+		return res.status(400).json({
+			success: false,
+			error: "Search query must not exceed 100 characters",
+		});
+	}
+
+	// Sanitize search query
+	req.query.q = sanitizeString(q);
+	next();
+};
