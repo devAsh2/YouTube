@@ -5,6 +5,7 @@ import connectDB from "./config/database.js";
 import { authRoutes } from "./routes/auth.route.js";
 import { videoRoutes } from "./routes/video.route.js";
 import { channelRoutes } from "./routes/channel.route.js";
+import { commentRoutes } from "./routes/comment.route.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 authRoutes(app);
 videoRoutes(app);
 channelRoutes(app);
+commentRoutes(app);
 
 // Database connection
 connectDB();
