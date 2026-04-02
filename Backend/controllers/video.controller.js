@@ -7,7 +7,7 @@ export const uploadVideo = async (req, res) => {
 		const { title, description, thumbnailUrl, videoUrl, channelId, category } =
 			req.body;
 
-		//create a video document in the database
+		// Create a video document in the database
 		const video = await Video.create({
 			title,
 			description,
@@ -17,6 +17,13 @@ export const uploadVideo = async (req, res) => {
 			category,
 			uploader: req.userId,
 		});
+
+		// Update channel's videos array to include this video
+		await Channel.findByIdAndUpdate(
+			channelId,
+			{ $push: { videos: video._id } },
+			{ new: true, runValidators: true },
+		);
 
 		return res.status(201).json({
 			success: true,
