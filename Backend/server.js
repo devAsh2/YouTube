@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/database.js";
 import { authRoutes } from "./routes/auth.route.js";
+import { videoRoutes } from "./routes/video.route.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 
 // Initialize Routes
 authRoutes(app);
+videoRoutes(app);
 
 // Database connection
 connectDB();
