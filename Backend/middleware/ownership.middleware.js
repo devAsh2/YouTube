@@ -65,3 +65,36 @@ export const checkChannelOwnership = async (req, res, next) => {
 		});
 	}
 };
+
+// Comment ownership middleware
+export const checkCommentOwnership = async (req, res, next) => {
+	try {
+		const comment = await Comment.findById(req.params.id);
+
+		if (!comment) {
+			return res.status(404).json({
+				success: false,
+				error: "Comment not found",
+				message: "No comment exists with the provided ID",
+			});
+		}
+
+		if (comment.author.toString() !== req.userId) {
+			return res.status(403).json({
+				success: false,
+				error: "Access denied",
+				message: "You are not authorized to modify this comment",
+			});
+		}
+
+		// Attach comment to request for controller to use
+		req.comment = comment;
+		next();
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			error: "Server error",
+			message: "Error checking comment ownership",
+		});
+	}
+};
