@@ -10,7 +10,8 @@ export const AuthProvider = ({ children }) => {
 	useEffect(() => {
 		const token = localStorage.getItem("yt_token");
 		if (token) {
-			authAPI.getProfile()
+			authAPI
+				.getProfile()
 				.then((response) => {
 					setUser(response.data.user);
 				})
@@ -21,6 +22,12 @@ export const AuthProvider = ({ children }) => {
 		}
 	}, []);
 
+	const extractError = (err) => {
+		const data = err.response?.data;
+		if (data?.details?.length) return data.details[0];
+		return data?.error || data?.message || err.message;
+	};
+
 	const login = async (email, password) => {
 		try {
 			const response = await authAPI.login({ email, password });
@@ -29,7 +36,7 @@ export const AuthProvider = ({ children }) => {
 			setUser(userData);
 			return { success: true };
 		} catch (err) {
-			return { success: false, message: err.response?.data?.message || err.message };
+			return { success: false, message: extractError(err) };
 		}
 	};
 
@@ -41,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 			setUser(userData);
 			return { success: true };
 		} catch (err) {
-			return { success: false, message: err.response?.data?.message || err.message };
+			return { success: false, message: extractError(err) };
 		}
 	};
 
@@ -52,11 +59,7 @@ export const AuthProvider = ({ children }) => {
 
 	const value = { user, loading, login, register, logout };
 
-	return (
-		<AuthContext.Provider value={value}>
-			{children}
-		</AuthContext.Provider>
-	);
+	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

@@ -147,6 +147,12 @@ export default function Auth() {
 								{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
 							</button>
 						</div>
+						{!isLogin && (
+							<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+								Must be 6–25 characters with at least one uppercase letter,
+								lowercase letter, and number.
+							</p>
+						)}
 					</div>
 
 					{/* Submit */}
