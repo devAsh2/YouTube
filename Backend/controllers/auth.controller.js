@@ -22,12 +22,16 @@ export const signup = async (req, res) => {
 		const user = new User({ username, email, password });
 		await user.save();
 
+		const token = generateToken(user._id);
+
 		res.status(201).json({
 			message: "User registered successfully",
 			user: {
 				id: user._id,
 				username: user.username,
 				email: user.email,
+				avatar: user.avatar,
+				channels: user.channels,
 			},
 			token,
 		});
@@ -62,6 +66,8 @@ export const login = async (req, res) => {
 				id: user._id,
 				username: user.username,
 				email: user.email,
+				avatar: user.avatar,
+				channels: user.channels,
 			},
 			token,
 		});

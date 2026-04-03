@@ -10,19 +10,23 @@ export default function Auth() {
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
 	const { login, register } = useAuth();
 	const navigate = useNavigate();
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
+		setIsLoading(true);
 
 		let result;
 		if (isLogin) {
-			result = login(email, password);
+			result = await login(email, password);
 		} else {
-			result = register(username, email, password);
+			result = await register(username, email, password);
 		}
+
+		setIsLoading(false);
 
 		if (result.success) {
 			navigate("/");
@@ -148,9 +152,14 @@ export default function Auth() {
 					{/* Submit */}
 					<button
 						type="submit"
-						className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+						disabled={isLoading}
+						className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed dark:focus:ring-offset-zinc-900"
 					>
-						{isLogin ? "Sign in" : "Create account"}
+						{isLoading
+							? "Please wait..."
+							: isLogin
+								? "Sign in"
+								: "Create account"}
 					</button>
 				</form>
 
