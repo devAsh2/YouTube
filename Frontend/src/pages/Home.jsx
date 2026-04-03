@@ -1,17 +1,75 @@
-import { useState } from "react";
-import { videos } from "../data/dummyData";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSidebar } from "../hooks/SidebarContext";
+import { useAuth } from "../hooks/AuthContext";
+import {
+	fetchAllVideos,
+	searchVideosByTitle,
+	fetchVideosByCategory,
+} from "../services/videoService";
 import FilterBar from "../components/FilterBar";
 import VideoCard from "../components/VideoCard";
 
 export default function Home() {
 	const [activeFilter, setActiveFilter] = useState("All");
+	const [videos, setVideos] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 	const { isOpen } = useSidebar();
+	const { user } = useAuth();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const searchQuery = searchParams.get("search") || "";
 
-	const filteredVideos =
-		activeFilter === "All"
-			? videos
-			: videos.filter((v) => v.category === activeFilter);
+	useEffect(() => {
+		const token = localStorage.getItem("yt_token");
+		if (!token) {
+			setVideos([]);
+			setLoading(false);
+			return;
+		}
+
+		let cancelled = false;
+		setLoading(true);
+		setError(null);
+
+		const load = async () => {
+			try {
+				let result;
+				if (searchQuery) {
+					result = await searchVideosByTitle(searchQuery, token);
+				} else if (activeFilter === "All") {
+					result = await fetchAllVideos(token);
+				} else {
+					result = await fetchVideosByCategory(activeFilter, token);
+				}
+				if (!cancelled) setVideos(result);
+			} catch (err) {
+				if (!cancelled) setError(err.message);
+			} finally {
+				if (!cancelled) setLoading(false);
+			}
+		};
+		load();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [activeFilter, searchQuery]);
+
+	// When a category filter is selected, clear the search param
+	const handleFilterChange = (category) => {
+		setActiveFilter(category);
+		if (searchQuery) {
+			setSearchParams({});
+		}
+	};
+
+	// When a search is active, reset category to "All"
+	useEffect(() => {
+		if (searchQuery) {
+			setActiveFilter("All");
+		}
+	}, [searchQuery]);
 
 	return (
 		<div
@@ -19,12 +77,25 @@ export default function Home() {
 				isOpen ? "md:ml-60" : "ml-0"
 			}`}
 		>
-			<FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+			<FilterBar
+				activeFilter={activeFilter}
+				onFilterChange={handleFilterChange}
+			/>
 
 			<div className="p-4">
-				{filteredVideos.length === 0 ? (
+				{loading ? (
 					<p className="mt-10 text-center text-gray-500 dark:text-gray-400">
-						No videos found in this category.
+						Loading videos...
+					</p>
+				) : error ? (
+					<p className="mt-10 text-center text-red-500 dark:text-red-400">
+						{error}
+					</p>
+				) : videos.length === 0 ? (
+					<p className="mt-10 text-center text-gray-500 dark:text-gray-400">
+						{searchQuery
+							? `No videos found for "${searchQuery}".`
+							: "No videos found in this category."}
 					</p>
 				) : (
 					<div
@@ -34,8 +105,8 @@ export default function Home() {
 								: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
 						}`}
 					>
-						{filteredVideos.map((video) => (
-							<VideoCard key={video.id} video={video} />
+						{videos.map((video) => (
+							<VideoCard key={video._id} video={video} />
 						))}
 					</div>
 				)}

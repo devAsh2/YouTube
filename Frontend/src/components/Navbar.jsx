@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Menu, Search, Sun, Moon, UserCircle, X, LogOut } from "lucide-react";
 import { useSidebar } from "../hooks/SidebarContext";
 import { useTheme } from "../hooks/ThemeContext";
@@ -9,7 +9,11 @@ export default function Navbar() {
 	const { toggle } = useSidebar();
 	const { darkMode, toggleTheme } = useTheme();
 	const { user, logout } = useAuth();
-	const [searchQuery, setSearchQuery] = useState("");
+	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const [searchQuery, setSearchQuery] = useState(
+		searchParams.get("search") || "",
+	);
 	const [showMobileSearch, setShowMobileSearch] = useState(false);
 	const [showUserMenu, setShowUserMenu] = useState(false);
 	const menuRef = useRef(null);
@@ -27,7 +31,13 @@ export default function Navbar() {
 
 	const handleSearch = (e) => {
 		e.preventDefault();
-		// Search functionality placeholder
+		const trimmed = searchQuery.trim();
+		if (trimmed) {
+			navigate(`/?search=${encodeURIComponent(trimmed)}`);
+		} else {
+			navigate("/");
+		}
+		setShowMobileSearch(false);
 	};
 
 	return (
