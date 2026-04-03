@@ -1,4 +1,4 @@
-import { categories } from "../data/dummyData";
+import { categories } from "../data/categories";
 
 export default function FilterBar({ activeFilter, onFilterChange }) {
 	return (
