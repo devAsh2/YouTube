@@ -1,4 +1,6 @@
 import { Video } from "../models/Video.model.js";
+import { Channel } from "../models/Channel.model.js";
+import { Comment } from "../models/Comment.model.js";
 
 // Video ownership middleware
 export const checkVideoOwnership = async (req, res, next) => {

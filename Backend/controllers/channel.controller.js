@@ -1,4 +1,6 @@
 import { Channel } from "../models/Channel.model.js";
+import { Video } from "../models/Video.model.js";
+import { User } from "../models/User.model.js";
 import { handleDatabaseError } from "../middleware/validation.middleware.js";
 
 export const createChannel = async (req, res) => {
@@ -10,6 +12,11 @@ export const createChannel = async (req, res) => {
 			description,
 			channelBanner,
 			owner: req.userId,
+		});
+
+		// Push channel to user's channels array
+		await User.findByIdAndUpdate(req.userId, {
+			$push: { channels: channel._id },
 		});
 
 		return res.status(201).json({
@@ -38,7 +45,15 @@ export const fetchChannels = async (req, res) => {
 export const fetchChannel = async (req, res) => {
 	try {
 		const channelId = req.params.id;
-		const channel = await Channel.findById(channelId);
+		const channel = await Channel.findById(channelId).populate(
+			"owner",
+			"username avatar",
+		);
+		if (!channel) {
+			return res
+				.status(404)
+				.json({ success: false, error: "Channel not found" });
+		}
 		return res.status(200).json({
 			success: true,
 			message: "Channel fetched successfully",
@@ -94,7 +109,9 @@ export const deleteChannel = async (req, res) => {
 export const getChannelVideos = async (req, res) => {
 	try {
 		const channelId = req.params.channelId;
-		const videos = await Video.find({ channelId });
+		const videos = await Video.find({ channelId })
+			.populate("channelId", "channelName")
+			.sort({ createdAt: -1 });
 		return res.status(200).json({
 			success: true,
 			message: "Channel videos fetched successfully",

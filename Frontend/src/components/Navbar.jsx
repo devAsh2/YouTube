@@ -1,9 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Menu, Search, Sun, Moon, UserCircle, X, LogOut } from "lucide-react";
+import {
+	Menu,
+	Search,
+	Sun,
+	Moon,
+	UserCircle,
+	X,
+	LogOut,
+	PlusCircle,
+	Tv,
+} from "lucide-react";
 import { useSidebar } from "../hooks/SidebarContext";
 import { useTheme } from "../hooks/ThemeContext";
 import { useAuth } from "../hooks/AuthContext";
+import CreateChannelDialog from "./CreateChannelDialog";
 
 export default function Navbar() {
 	const { toggle } = useSidebar();
@@ -16,6 +27,7 @@ export default function Navbar() {
 	);
 	const [showMobileSearch, setShowMobileSearch] = useState(false);
 	const [showUserMenu, setShowUserMenu] = useState(false);
+	const [showCreateChannel, setShowCreateChannel] = useState(false);
 	const menuRef = useRef(null);
 
 	// Close user menu on outside click
@@ -139,7 +151,8 @@ export default function Navbar() {
 							/>
 						</button>
 						{showUserMenu && (
-							<div className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white py-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+							<div className="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 bg-white py-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+								{/* User info header */}
 								<div className="border-b border-gray-200 px-4 pb-3 dark:border-zinc-700">
 									<div className="flex items-center gap-3">
 										<img
@@ -147,22 +160,74 @@ export default function Navbar() {
 											alt={user.username}
 											className="h-10 w-10 rounded-full object-cover"
 										/>
-										<div>
+										<div className="min-w-0">
 											<p className="text-sm font-medium text-gray-900 dark:text-white">
 												{user.username}
 											</p>
 											<p className="text-xs text-gray-500 dark:text-gray-400">
-												{user.email}
+												@{user.username}
 											</p>
+											{/* Channel link or create */}
+											{user.channels?.length > 0 ? (
+												<button
+													onClick={() => {
+														setShowUserMenu(false);
+														navigate(`/channel/${user.channels[0]}`);
+													}}
+													className="mt-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+												>
+													View your channel
+												</button>
+											) : (
+												<button
+													onClick={() => {
+														setShowUserMenu(false);
+														setShowCreateChannel(true);
+													}}
+													className="mt-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+												>
+													Create a channel
+												</button>
+											)}
 										</div>
 									</div>
 								</div>
+
+								{/* Channel actions */}
+								{user.channels?.length > 0 ? (
+									<button
+										onClick={() => {
+											setShowUserMenu(false);
+											navigate(`/channel/${user.channels[0]}`);
+										}}
+										className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+									>
+										<Tv size={18} />
+										Your channel
+									</button>
+								) : (
+									<button
+										onClick={() => {
+											setShowUserMenu(false);
+											setShowCreateChannel(true);
+										}}
+										className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+									>
+										<PlusCircle size={18} />
+										Create a channel
+									</button>
+								)}
+
+								{/* Divider */}
+								<div className="my-1 border-t border-gray-200 dark:border-zinc-700" />
+
+								{/* Sign out */}
 								<button
 									onClick={() => {
 										logout();
 										setShowUserMenu(false);
 									}}
-									className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+									className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
 								>
 									<LogOut size={18} />
 									Sign out
@@ -180,6 +245,17 @@ export default function Navbar() {
 					</Link>
 				)}
 			</div>
+
+			{/* Create Channel Dialog */}
+			{showCreateChannel && (
+				<CreateChannelDialog
+					onClose={() => setShowCreateChannel(false)}
+					onCreated={(channelId) => {
+						setShowCreateChannel(false);
+						navigate(`/channel/${channelId}`);
+					}}
+				/>
+			)}
 		</header>
 	);
 }

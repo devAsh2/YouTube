@@ -38,6 +38,10 @@ export const videoAPI = {
 	likeVideo: (videoId) => api.post(`/api/videos/${videoId}/like`),
 	dislikeVideo: (videoId) => api.post(`/api/videos/${videoId}/dislike`),
 	incrementView: (videoId) => api.post(`/api/videos/${videoId}/view`),
+
+	// Video CRUD
+	updateVideo: (videoId, data) => api.put(`/api/videos/${videoId}`, data),
+	deleteVideo: (videoId) => api.delete(`/api/videos/${videoId}`),
 };
 
 // Auth API endpoints
@@ -52,6 +56,8 @@ export const authAPI = {
 // Channel API endpoints
 export const channelAPI = {
 	getChannel: (channelId) => api.get(`/api/channels/${channelId}`),
+	createChannel: (data) => api.post("/api/channels", data),
+	getChannelVideos: (channelId) => api.get(`/api/channels/${channelId}/videos`),
 	subscribeToChannel: (channelId) =>
 		api.post(`/api/channels/${channelId}/subscribe`),
 	unsubscribeFromChannel: (channelId) =>

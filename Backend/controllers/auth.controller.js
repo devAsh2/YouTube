@@ -19,7 +19,7 @@ export const signup = async (req, res) => {
 		}
 
 		// Create new user
-		const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&color=fff&size=128`;
+		const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(username.charAt(0))}&background=random&color=fff&size=128`;
 		const user = new User({ username, email, password, avatar: avatarUrl });
 		await user.save();
 
