@@ -24,7 +24,9 @@ export const createComment = async (req, res) => {
 export const fetchComments = async (req, res) => {
 	try {
 		const videoId = req.params.videoId;
-		const comments = await Comment.find({ video: videoId });
+		const comments = await Comment.find({ video: videoId })
+			.populate("author", "username avatar")
+			.sort({ createdAt: -1 });
 		return res.status(200).json({
 			success: true,
 			message: "Comments fetched successfully",
