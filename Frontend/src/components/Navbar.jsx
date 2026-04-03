@@ -1,14 +1,29 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Search, Sun, Moon, UserCircle, X } from "lucide-react";
+import { Menu, Search, Sun, Moon, UserCircle, X, LogOut } from "lucide-react";
 import { useSidebar } from "../hooks/SidebarContext";
 import { useTheme } from "../hooks/ThemeContext";
+import { useAuth } from "../hooks/AuthContext";
 
 export default function Navbar() {
 	const { toggle } = useSidebar();
 	const { darkMode, toggleTheme } = useTheme();
+	const { user, logout } = useAuth();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showMobileSearch, setShowMobileSearch] = useState(false);
+	const [showUserMenu, setShowUserMenu] = useState(false);
+	const menuRef = useRef(null);
+
+	// Close user menu on outside click
+	useEffect(() => {
+		const handler = (e) => {
+			if (menuRef.current && !menuRef.current.contains(e.target)) {
+				setShowUserMenu(false);
+			}
+		};
+		document.addEventListener("mousedown", handler);
+		return () => document.removeEventListener("mousedown", handler);
+	}, []);
 
 	const handleSearch = (e) => {
 		e.preventDefault();
@@ -100,11 +115,60 @@ export default function Navbar() {
 					)}
 				</button>
 
-				{/* Sign in */}
-				<button className="flex items-center gap-1.5 rounded-full border border-blue-300 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-950">
-					<UserCircle size={20} />
-					<span className="hidden sm:inline">Sign in</span>
-				</button>
+				{/* Sign in / User menu */}
+				{user ? (
+					<div className="relative" ref={menuRef}>
+						<button
+							onClick={() => setShowUserMenu((prev) => !prev)}
+							className="flex items-center gap-2 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-zinc-800"
+						>
+							<img
+								src={user.avatar}
+								alt={user.username}
+								className="h-8 w-8 rounded-full object-cover"
+							/>
+						</button>
+						{showUserMenu && (
+							<div className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white py-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+								<div className="border-b border-gray-200 px-4 pb-3 dark:border-zinc-700">
+									<div className="flex items-center gap-3">
+										<img
+											src={user.avatar}
+											alt={user.username}
+											className="h-10 w-10 rounded-full object-cover"
+										/>
+										<div>
+											<p className="text-sm font-medium text-gray-900 dark:text-white">
+												{user.username}
+											</p>
+											<p className="text-xs text-gray-500 dark:text-gray-400">
+												{user.email}
+											</p>
+										</div>
+									</div>
+								</div>
+								<button
+									onClick={() => {
+										logout();
+										setShowUserMenu(false);
+									}}
+									className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+								>
+									<LogOut size={18} />
+									Sign out
+								</button>
+							</div>
+						)}
+					</div>
+				) : (
+					<Link
+						to="/auth"
+						className="flex items-center gap-1.5 rounded-full border border-blue-300 px-3 py-1.5 text-sm font-medium text-blue-600 no-underline hover:bg-blue-50 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-950"
+					>
+						<UserCircle size={20} />
+						<span className="hidden sm:inline">Sign in</span>
+					</Link>
+				)}
 			</div>
 		</header>
 	);
