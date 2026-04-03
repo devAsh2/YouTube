@@ -1,17 +1,19 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { loginUser, registerUser, fetchProfile } from "../services/authService";
+import { authAPI } from "../services/api";
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const token = localStorage.getItem("yt_token");
 		if (token) {
-			fetchProfile(token)
-				.then((profileUser) => setUser(profileUser))
+			authAPI.getProfile()
+				.then((response) => {
+					setUser(response.data.user);
+				})
 				.catch(() => localStorage.removeItem("yt_token"))
 				.finally(() => setLoading(false));
 		} else {
@@ -21,27 +23,25 @@ export function AuthProvider({ children }) {
 
 	const login = async (email, password) => {
 		try {
-			const { user: userData, token } = await loginUser(email, password);
+			const response = await authAPI.login({ email, password });
+			const { user: userData, token } = response.data;
 			localStorage.setItem("yt_token", token);
 			setUser(userData);
 			return { success: true };
 		} catch (err) {
-			return { success: false, message: err.message };
+			return { success: false, message: err.response?.data?.message || err.message };
 		}
 	};
 
 	const register = async (username, email, password) => {
 		try {
-			const { user: userData, token } = await registerUser(
-				username,
-				email,
-				password,
-			);
+			const response = await authAPI.register({ username, email, password });
+			const { user: userData, token } = response.data;
 			localStorage.setItem("yt_token", token);
 			setUser(userData);
 			return { success: true };
 		} catch (err) {
-			return { success: false, message: err.message };
+			return { success: false, message: err.response?.data?.message || err.message };
 		}
 	};
 
@@ -50,13 +50,15 @@ export function AuthProvider({ children }) {
 		setUser(null);
 	};
 
+	const value = { user, loading, login, register, logout };
+
 	return (
-		<AuthContext.Provider value={{ user, loading, login, register, logout }}>
+		<AuthContext.Provider value={value}>
 			{children}
 		</AuthContext.Provider>
 	);
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
 	return useContext(AuthContext);
-}
+};

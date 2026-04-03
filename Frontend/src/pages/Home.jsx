@@ -2,11 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useSidebar } from "../hooks/SidebarContext";
 import { useAuth } from "../hooks/AuthContext";
-import {
-	fetchAllVideos,
-	searchVideosByTitle,
-	fetchVideosByCategory,
-} from "../services/videoService";
+import { videoAPI } from "../services/api";
 import FilterBar from "../components/FilterBar";
 import VideoCard from "../components/VideoCard";
 
@@ -21,13 +17,6 @@ export default function Home() {
 	const searchQuery = searchParams.get("search") || "";
 
 	useEffect(() => {
-		const token = localStorage.getItem("yt_token");
-		if (!token) {
-			setVideos([]);
-			setLoading(false);
-			return;
-		}
-
 		let cancelled = false;
 		setLoading(true);
 		setError(null);
@@ -36,15 +25,18 @@ export default function Home() {
 			try {
 				let result;
 				if (searchQuery) {
-					result = await searchVideosByTitle(searchQuery, token);
+					const response = await videoAPI.searchVideos(searchQuery);
+					result = response.data.searchedVideos;
 				} else if (activeFilter === "All") {
-					result = await fetchAllVideos(token);
+					const response = await videoAPI.getAllVideos();
+					result = response.data.fetchedVideos;
 				} else {
-					result = await fetchVideosByCategory(activeFilter, token);
+					const response = await videoAPI.getVideosByCategory(activeFilter);
+					result = response.data.videos;
 				}
 				if (!cancelled) setVideos(result);
 			} catch (err) {
-				if (!cancelled) setError(err.message);
+				if (!cancelled) setError(err.message || 'Failed to fetch videos');
 			} finally {
 				if (!cancelled) setLoading(false);
 			}

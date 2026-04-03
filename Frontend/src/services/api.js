@@ -1,0 +1,65 @@
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+// Create axios instance with base configuration
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true, // For cookies
+});
+
+// Add request interceptor to include auth token if available
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('yt_token'); 
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Video API endpoints
+export const videoAPI = {
+  // Single video operations
+  getVideo: (videoId) => api.get(`/api/videos/${videoId}`),
+  
+  // Multiple video operations
+  getAllVideos: () => api.get('/api/videos'),
+  searchVideos: (query) => api.get(`/api/videos/search?q=${encodeURIComponent(query)}`),
+  getVideosByCategory: (category) => api.get(`/api/videos/category/${encodeURIComponent(category)}`),
+  
+  // Video interactions
+  likeVideo: (videoId) => api.post(`/api/videos/${videoId}/like`),
+  dislikeVideo: (videoId) => api.post(`/api/videos/${videoId}/dislike`),
+  incrementView: (videoId) => api.post(`/api/videos/${videoId}/view`),
+};
+
+// Auth API endpoints 
+export const authAPI = {
+  login: (credentials) => api.post('/api/login', credentials),
+  register: (userData) => api.post('/api/signup', userData),
+  logout: () => api.post('/api/auth/logout'),
+  refreshToken: () => api.post('/api/auth/refresh'),
+  getProfile: () => api.get('/api/profile'),
+};
+
+// Channel API endpoints 
+export const channelAPI = {
+  getChannel: (channelId) => api.get(`/api/channels/${channelId}`),
+  subscribeToChannel: (channelId) => api.post(`/api/channels/${channelId}/subscribe`),
+  unsubscribeFromChannel: (channelId) => api.delete(`/api/channels/${channelId}/subscribe`),
+};
+
+// Comment API endpoints 
+export const commentAPI = {
+  getComments: (videoId) => api.get(`/api/comments/video/${videoId}`),
+  addComment: (videoId, comment) => api.post(`/api/comments/video/${videoId}`, comment),
+  deleteComment: (commentId) => api.delete(`/api/comments/${commentId}`),
+  likeComment: (commentId) => api.post(`/api/comments/${commentId}/like`),
+};
+
+export default api;

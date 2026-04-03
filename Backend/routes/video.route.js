@@ -18,22 +18,20 @@ import {
 import { checkVideoOwnership } from "../middleware/ownership.middleware.js";
 
 export function videoRoutes(app) {
-	// Get all videos
-	app.get("/api/videos", authenticateToken, fetchVideos);
-	// Search video route by title (must be before :id routes)
+	// Get all videos (public)
+	app.get("/api/videos", fetchVideos);
+	// Search video route by title (public - must be before :id routes)
 	app.get(
 		"/api/videos/search",
-		authenticateToken,
 		handleSearchValidation,
 		searchVideos,
 	);
-	// Filter videos by category (must be before :id routes)
+	// Filter videos by category (public - must be before :id routes)
 	app.get(
 		"/api/videos/category/:category",
-		authenticateToken,
 		filterVidoesByCategory,
 	);
-	// Get a specific video
+	// Get a specific video (public)
 	app.get("/api/videos/:id", authenticateToken, fetchVideo);
 	// Post a video
 	app.post(
