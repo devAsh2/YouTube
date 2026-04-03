@@ -57,7 +57,7 @@ export const updateChannel = async (req, res) => {
 		const updatedChannel = await Channel.findByIdAndUpdate(
 			channelId,
 			req.body,
-			{ new: true, runValidators: true },
+			{ returnDocument: "after", runValidators: true },
 		);
 
 		console.log("Updated channel successfully:", updatedChannel);

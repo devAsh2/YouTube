@@ -73,7 +73,7 @@ export const updateVideo = async (req, res) => {
 		// Update the video
 		const videoId = req.params.id;
 		const updatedVideo = await Video.findByIdAndUpdate(videoId, req.body, {
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		});
 
@@ -143,16 +143,31 @@ export const filterVidoesByCategory = async (req, res) => {
 export const likeVideo = async (req, res) => {
 	try {
 		const videoId = req.params.id;
-		const video = await Video.findByIdAndUpdate(
-			videoId,
-			{
-				$inc: { likes: 1 },
-			},
-			{ new: true },
-		);
+		const userId = req.userId;
+		const video = await Video.findById(videoId);
+		if (!video) return res.status(404).json({ error: "Video not found" });
+
+		const alreadyLiked = video.likedBy.includes(userId);
+		const alreadyDisliked = video.dislikedBy.includes(userId);
+
+		if (alreadyLiked) {
+			// Unlike
+			video.likedBy.pull(userId);
+			video.likes = Math.max(0, video.likes - 1);
+		} else {
+			// Like (and remove dislike if present)
+			video.likedBy.push(userId);
+			video.likes += 1;
+			if (alreadyDisliked) {
+				video.dislikedBy.pull(userId);
+				video.dislikes = Math.max(0, video.dislikes - 1);
+			}
+		}
+
+		await video.save();
 		res.status(200).json({
 			success: true,
-			message: "Video liked successfully",
+			message: alreadyLiked ? "Like removed" : "Video liked successfully",
 			video: video,
 		});
 	} catch (error) {
@@ -162,16 +177,34 @@ export const likeVideo = async (req, res) => {
 
 export const dislikeVideo = async (req, res) => {
 	try {
-		const video = await Video.findByIdAndUpdate(
-			req.params.id,
-			{
-				$inc: { dislikes: 1 },
-			},
-			{ new: true },
-		);
+		const videoId = req.params.id;
+		const userId = req.userId;
+		const video = await Video.findById(videoId);
+		if (!video) return res.status(404).json({ error: "Video not found" });
+
+		const alreadyDisliked = video.dislikedBy.includes(userId);
+		const alreadyLiked = video.likedBy.includes(userId);
+
+		if (alreadyDisliked) {
+			// Remove dislike
+			video.dislikedBy.pull(userId);
+			video.dislikes = Math.max(0, video.dislikes - 1);
+		} else {
+			// Dislike (and remove like if present)
+			video.dislikedBy.push(userId);
+			video.dislikes += 1;
+			if (alreadyLiked) {
+				video.likedBy.pull(userId);
+				video.likes = Math.max(0, video.likes - 1);
+			}
+		}
+
+		await video.save();
 		res.status(200).json({
 			success: true,
-			message: "Video disliked successfully",
+			message: alreadyDisliked
+				? "Dislike removed"
+				: "Video disliked successfully",
 			video: video,
 		});
 	} catch (error) {
