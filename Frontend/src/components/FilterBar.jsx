@@ -2,7 +2,7 @@ import { categories } from "../data/categories";
 
 export default function FilterBar({ activeFilter, onFilterChange }) {
 	return (
-		<div className="hide-scrollbar sticky top-14 z-30 flex gap-3 overflow-x-auto bg-white px-4 py-3 dark:bg-zinc-900">
+		<div className="hide-scrollbar sticky top-14 z-30 flex gap-3 overflow-x-auto border-b border-gray-200 bg-white px-4 py-3 sm:px-6 dark:border-zinc-700 dark:bg-zinc-900">
 			{categories.map((category) => (
 				<button
 					key={category}
