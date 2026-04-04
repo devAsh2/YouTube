@@ -36,7 +36,7 @@ export default function Home() {
 				}
 				if (!cancelled) setVideos(result);
 			} catch (err) {
-				if (!cancelled) setError(err.message || 'Failed to fetch videos');
+				if (!cancelled) setError(err.message || "Failed to fetch videos");
 			} finally {
 				if (!cancelled) setLoading(false);
 			}
@@ -74,34 +74,36 @@ export default function Home() {
 				onFilterChange={handleFilterChange}
 			/>
 
-			<div className="p-4">
-				{loading ? (
-					<p className="mt-10 text-center text-gray-500 dark:text-gray-400">
-						Loading videos...
-					</p>
-				) : error ? (
-					<p className="mt-10 text-center text-red-500 dark:text-red-400">
-						{error}
-					</p>
-				) : videos.length === 0 ? (
-					<p className="mt-10 text-center text-gray-500 dark:text-gray-400">
-						{searchQuery
-							? `No videos found for "${searchQuery}".`
-							: "No videos found in this category."}
-					</p>
-				) : (
-					<div
-						className={`grid gap-x-4 gap-y-8 ${
-							isOpen
-								? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-								: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-						}`}
-					>
-						{videos.map((video) => (
-							<VideoCard key={video._id} video={video} />
-						))}
-					</div>
-				)}
+			<div className="p-4 sm:p-6">
+				<div className="mx-auto max-w-7xl">
+					{loading ? (
+						<p className="mt-10 text-center text-gray-500 dark:text-gray-400">
+							Loading videos...
+						</p>
+					) : error ? (
+						<p className="mt-10 text-center text-red-500 dark:text-red-400">
+							{error}
+						</p>
+					) : videos.length === 0 ? (
+						<p className="mt-10 text-center text-gray-500 dark:text-gray-400">
+							{searchQuery
+								? `No videos found for "${searchQuery}".`
+								: "No videos found in this category."}
+						</p>
+					) : (
+						<div
+							className={`grid gap-x-4 gap-y-8 ${
+								isOpen
+									? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+									: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+							}`}
+						>
+							{videos.map((video) => (
+								<VideoCard key={video._id} video={video} />
+							))}
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);

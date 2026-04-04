@@ -64,9 +64,9 @@ export default function CreateChannelDialog({ onClose, onCreated }) {
 
 	return (
 		<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-			<div className="w-full max-w-2xl rounded-2xl bg-white px-8 py-7 shadow-xl dark:bg-zinc-900">
+			<div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white px-5 py-5 shadow-xl dark:bg-zinc-900 sm:max-w-lg sm:px-8 sm:py-7">
 				{/* Header */}
-				<div className="mb-8 flex items-start justify-between">
+				<div className="mb-6 flex items-start justify-between">
 					<h2 className="text-2xl font-medium text-gray-900 dark:text-white">
 						How you'll appear
 					</h2>
@@ -79,7 +79,7 @@ export default function CreateChannelDialog({ onClose, onCreated }) {
 				</div>
 
 				{/* Avatar Preview */}
-				<div className="mb-8 flex justify-center">
+				<div className="mb-6 flex justify-center">
 					<img
 						src={user?.avatar}
 						alt={user?.username}

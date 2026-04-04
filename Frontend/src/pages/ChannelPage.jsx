@@ -177,9 +177,9 @@ export default function ChannelPage() {
 
 	return (
 		<div
-			className={`transition-all duration-200 ${isOpen ? "md:ml-60" : "ml-0"}`}
+			className={`min-h-screen transition-all duration-200 ${isOpen ? "md:ml-60" : "ml-0"}`}
 		>
-			<div className="mx-auto max-w-6xl px-4 sm:px-6">
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				{/* Banner */}
 				<div
 					className="h-28 w-full rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 sm:h-40"
