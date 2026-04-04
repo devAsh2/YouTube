@@ -40,6 +40,7 @@ export const videoAPI = {
 	incrementView: (videoId) => api.post(`/api/videos/${videoId}/view`),
 
 	// Video CRUD
+	createVideo: (data) => api.post("/api/videos", data),
 	updateVideo: (videoId, data) => api.put(`/api/videos/${videoId}`, data),
 	deleteVideo: (videoId) => api.delete(`/api/videos/${videoId}`),
 };

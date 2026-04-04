@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { MoreVertical, Pencil, Trash2, Loader2 } from "lucide-react";
+import { MoreVertical, Pencil, Plus, Trash2, Loader2 } from "lucide-react";
 import { channelAPI, videoAPI } from "../services/api";
 import { useAuth } from "../hooks/AuthContext";
 import { useSidebar } from "../hooks/SidebarContext";
@@ -14,6 +14,16 @@ export default function ChannelPage() {
 	const [videos, setVideos] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
+	const [actionError, setActionError] = useState("");
+
+	// Create modal state
+	const [showCreateModal, setShowCreateModal] = useState(false);
+	const [createTitle, setCreateTitle] = useState("");
+	const [createDescription, setCreateDescription] = useState("");
+	const [createThumbnailUrl, setCreateThumbnailUrl] = useState("");
+	const [createVideoUrl, setCreateVideoUrl] = useState("");
+	const [createCategory, setCreateCategory] = useState("Other");
+	const [createLoading, setCreateLoading] = useState(false);
 
 	// Edit modal state
 	const [editingVideo, setEditingVideo] = useState(null);
@@ -54,8 +64,9 @@ export default function ChannelPage() {
 		try {
 			await videoAPI.deleteVideo(videoId);
 			setVideos((prev) => prev.filter((v) => v._id !== videoId));
+			setActionError("");
 		} catch {
-			alert("Failed to delete video");
+			setActionError("Failed to delete video");
 		}
 	};
 
@@ -79,10 +90,58 @@ export default function ChannelPage() {
 				prev.map((v) => (v._id === updated._id ? { ...v, ...updated } : v)),
 			);
 			setEditingVideo(null);
+			setActionError("");
 		} catch {
-			alert("Failed to update video");
+			setActionError("Failed to update video");
 		} finally {
 			setEditLoading(false);
+		}
+	};
+
+	const resetCreateForm = () => {
+		setCreateTitle("");
+		setCreateDescription("");
+		setCreateThumbnailUrl("");
+		setCreateVideoUrl("");
+		setCreateCategory("Other");
+	};
+
+	const openCreateModal = () => {
+		setActionError("");
+		resetCreateForm();
+		setShowCreateModal(true);
+	};
+
+	const closeCreateModal = () => {
+		setShowCreateModal(false);
+		setCreateLoading(false);
+	};
+
+	const handleCreateSubmit = async (e) => {
+		e.preventDefault();
+		setCreateLoading(true);
+		setActionError("");
+
+		try {
+			const res = await videoAPI.createVideo({
+				title: createTitle.trim(),
+				description: createDescription.trim(),
+				thumbnailUrl: createThumbnailUrl.trim(),
+				videoUrl: createVideoUrl.trim(),
+				category: createCategory,
+				channelId,
+			});
+
+			const created = res.data.uploadedVideo;
+			setVideos((prev) => [created, ...prev]);
+			closeCreateModal();
+		} catch (err) {
+			const data = err.response?.data;
+			setActionError(
+				data?.details?.[0] || data?.error || "Failed to create video",
+			);
+		} finally {
+			setCreateLoading(false);
 		}
 	};
 
@@ -171,11 +230,26 @@ export default function ChannelPage() {
 				</div>
 
 				{/* Videos tab */}
-				<div className="border-b border-gray-200 dark:border-zinc-700">
+				<div className="flex items-end justify-between border-b border-gray-200 dark:border-zinc-700">
 					<div className="inline-block border-b-2 border-gray-900 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white dark:text-white">
 						Videos
 					</div>
+					{isOwner && (
+						<button
+							onClick={openCreateModal}
+							className="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+						>
+							<Plus size={16} />
+							Upload video
+						</button>
+					)}
 				</div>
+
+				{actionError && (
+					<div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-950 dark:text-red-400">
+						{actionError}
+					</div>
+				)}
 
 				{/* Videos grid */}
 				{videos.length === 0 ? (
@@ -255,6 +329,117 @@ export default function ChannelPage() {
 					</div>
 				)}
 			</div>
+
+			{/* Create Video Modal */}
+			{showCreateModal && (
+				<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+					<div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900">
+						<h2 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+							Upload video
+						</h2>
+						<form onSubmit={handleCreateSubmit} className="space-y-4">
+							<div>
+								<label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+									Title
+								</label>
+								<input
+									type="text"
+									value={createTitle}
+									onChange={(e) => setCreateTitle(e.target.value)}
+									required
+									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+								/>
+							</div>
+
+							<div>
+								<label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+									Thumbnail URL
+								</label>
+								<input
+									type="url"
+									value={createThumbnailUrl}
+									onChange={(e) => setCreateThumbnailUrl(e.target.value)}
+									required
+									placeholder="https://example.com/thumb.jpg"
+									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+								/>
+							</div>
+
+							<div>
+								<label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+									Video URL
+								</label>
+								<input
+									type="url"
+									value={createVideoUrl}
+									onChange={(e) => setCreateVideoUrl(e.target.value)}
+									required
+									placeholder="https://example.com/video.mp4"
+									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+								/>
+								<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+									Accepted by backend: direct video files like .mp4, .avi, .mov,
+									.wmv, .flv, .webm
+								</p>
+							</div>
+
+							<div>
+								<label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+									Category
+								</label>
+								<select
+									value={createCategory}
+									onChange={(e) => setCreateCategory(e.target.value)}
+									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+								>
+									<option>Education</option>
+									<option>Music</option>
+									<option>Gaming</option>
+									<option>News</option>
+									<option>Sports</option>
+									<option>Technology</option>
+									<option>Entertainment</option>
+									<option>Other</option>
+								</select>
+							</div>
+
+							<div>
+								<label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+									Description
+								</label>
+								<textarea
+									value={createDescription}
+									onChange={(e) => setCreateDescription(e.target.value)}
+									rows={4}
+									className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+								/>
+							</div>
+
+							<div className="flex justify-end gap-3">
+								<button
+									type="button"
+									onClick={closeCreateModal}
+									className="rounded-full px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
+								>
+									Cancel
+								</button>
+								<button
+									type="submit"
+									disabled={
+										createLoading ||
+										!createTitle.trim() ||
+										!createThumbnailUrl.trim() ||
+										!createVideoUrl.trim()
+									}
+									className="rounded-full bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+								>
+									{createLoading ? "Uploading..." : "Upload"}
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			)}
 
 			{/* Edit Video Modal */}
 			{editingVideo && (

@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 // Sanitization helper functions
 const sanitizeString = (str) => {
 	if (typeof str !== "string") return str;
