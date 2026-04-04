@@ -113,7 +113,9 @@ export const searchVideos = async (req, res) => {
 		const { q } = req.query;
 		const videos = await Video.find({
 			title: { $regex: q, $options: "i" },
-		});
+		})
+			.populate("channelId", "channelName")
+			.populate("uploader", "username");
 		return res.status(200).json({
 			success: true,
 			message: `Found ${videos.length} videos for search query: "${q}"`,
@@ -129,7 +131,9 @@ export const filterVidoesByCategory = async (req, res) => {
 	try {
 		const category = req.params.category;
 
-		const videos = await Video.find({ category });
+		const videos = await Video.find({ category })
+			.populate("channelId", "channelName")
+			.populate("uploader", "username");
 		return res.status(200).json({
 			success: true,
 			message: `Found ${videos.length} videos in ${category} category`,
