@@ -143,11 +143,11 @@ YoutubeClone/
 - `DELETE /api/videos/:id` - Delete video (auth + ownership required)
 - `POST /api/videos/:id/like` - Like/unlike a video (auth required)
 - `POST /api/videos/:id/dislike` - Dislike/undislike a video (auth required)
-- `POST /api/videos/:id/view` - Increment view count (auth required)
+- `POST /api/videos/:id/view` - Increment view count (public)
 
 ### Comments
 
-- `GET /api/comments/:videoId` - Get video comments (auth required)
+- `GET /api/comments/:videoId` - Get video comments (public)
 - `POST /api/comments` - Add comment (auth required)
 - `PUT /api/comments/:id` - Update comment (auth + ownership required)
 - `DELETE /api/comments/:id` - Delete comment (auth + ownership required)
@@ -172,10 +172,4 @@ YoutubeClone/
 Use the following values when testing the Create Video flow. Replace placeholders with working links before submission.
 
 - Thumbnail URL 1: `https://www.w3schools.com/html/pic_trulli.jpg`
-- Thumbnail URL 2: `<ADD_THUMBNAIL_URL_2>`
 - Video URL 1: `https://www.w3schools.com/html/mov_bbb.mp4`
-- Video URL 2: `<ADD_VIDEO_URL_2>`
-
-## 🤝 Contributing
-
-This project is part of an internship assignment. Please follow the existing code style and commit conventions.
