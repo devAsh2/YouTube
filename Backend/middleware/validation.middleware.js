@@ -147,23 +147,15 @@ export const handleVideoValidation = (req, res, next) => {
 	// Thumbnail URL validation
 	if (!req.body.thumbnailUrl) {
 		errors.push("Thumbnail URL is required");
-	} else if (
-		!/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(req.body.thumbnailUrl)
-	) {
-		errors.push(
-			"Please enter a valid thumbnail URL (jpg, jpeg, png, gif, or webp)",
-		);
+	} else if (!/^https?:\/\/\S+$/i.test(req.body.thumbnailUrl)) {
+		errors.push("Please enter a valid thumbnail URL");
 	}
 
 	// Video URL validation
 	if (!req.body.videoUrl) {
 		errors.push("Video URL is required");
-	} else if (
-		!/^https?:\/\/.+\.(mp4|avi|mov|wmv|flv|webm)$/i.test(req.body.videoUrl)
-	) {
-		errors.push(
-			"Please enter a valid video URL (mp4, avi, mov, wmv, flv, or webm)",
-		);
+	} else if (!/^https?:\/\/\S+$/i.test(req.body.videoUrl)) {
+		errors.push("Please enter a valid video URL");
 	}
 
 	// Channel ID validation

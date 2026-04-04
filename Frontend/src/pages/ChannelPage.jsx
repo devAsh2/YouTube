@@ -28,6 +28,7 @@ export default function ChannelPage() {
 	// Edit modal state
 	const [editingVideo, setEditingVideo] = useState(null);
 	const [editTitle, setEditTitle] = useState("");
+	const [editThumbnailUrl, setEditThumbnailUrl] = useState("");
 	const [editDescription, setEditDescription] = useState("");
 	const [editLoading, setEditLoading] = useState(false);
 
@@ -73,6 +74,7 @@ export default function ChannelPage() {
 	const openEdit = (video) => {
 		setEditingVideo(video);
 		setEditTitle(video.title);
+		setEditThumbnailUrl(video.thumbnailUrl || "");
 		setEditDescription(video.description || "");
 		setOpenMenuId(null);
 	};
@@ -83,6 +85,7 @@ export default function ChannelPage() {
 		try {
 			const res = await videoAPI.updateVideo(editingVideo._id, {
 				title: editTitle.trim(),
+				thumbnailUrl: editThumbnailUrl.trim(),
 				description: editDescription.trim(),
 			});
 			const updated = res.data.updatedVideo;
@@ -360,7 +363,7 @@ export default function ChannelPage() {
 									value={createThumbnailUrl}
 									onChange={(e) => setCreateThumbnailUrl(e.target.value)}
 									required
-									placeholder="https://example.com/thumb.jpg"
+									placeholder="https://example.com/thumbnail"
 									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
 								/>
 							</div>
@@ -374,12 +377,11 @@ export default function ChannelPage() {
 									value={createVideoUrl}
 									onChange={(e) => setCreateVideoUrl(e.target.value)}
 									required
-									placeholder="https://example.com/video.mp4"
+									placeholder="https://example.com/video"
 									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
 								/>
 								<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-									Accepted by backend: direct video files like .mp4, .avi, .mov,
-									.wmv, .flv, .webm
+									Any valid video URL is accepted.
 								</p>
 							</div>
 
@@ -463,6 +465,19 @@ export default function ChannelPage() {
 							</div>
 							<div>
 								<label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+									Thumbnail URL
+								</label>
+								<input
+									type="url"
+									value={editThumbnailUrl}
+									onChange={(e) => setEditThumbnailUrl(e.target.value)}
+									required
+									placeholder="https://example.com/thumbnail"
+									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+								/>
+							</div>
+							<div>
+								<label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
 									Description
 								</label>
 								<textarea
@@ -482,7 +497,9 @@ export default function ChannelPage() {
 								</button>
 								<button
 									type="submit"
-									disabled={editLoading || !editTitle.trim()}
+									disabled={
+										editLoading || !editTitle.trim() || !editThumbnailUrl.trim()
+									}
 									className="rounded-full bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 								>
 									{editLoading ? "Saving..." : "Save"}
