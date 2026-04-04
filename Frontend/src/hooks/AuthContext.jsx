@@ -22,6 +22,16 @@ export const AuthProvider = ({ children }) => {
 		}
 	}, []);
 
+	// Listen for token expiration events from API interceptor
+	useEffect(() => {
+		const handleTokenExpired = () => {
+			setUser(null);
+		};
+
+		window.addEventListener("tokenExpired", handleTokenExpired);
+		return () => window.removeEventListener("tokenExpired", handleTokenExpired);
+	}, []);
+
 	const extractError = (err) => {
 		const data = err.response?.data;
 		if (data?.details?.length) return data.details[0];

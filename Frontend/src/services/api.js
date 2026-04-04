@@ -22,6 +22,22 @@ api.interceptors.request.use(
 	},
 );
 
+// Add response interceptor to handle token expiration (401 errors)
+api.interceptors.response.use(
+	(response) => response,
+	(error) => {
+		if (error.response?.status === 401) {
+			// Token expired or invalid
+			localStorage.removeItem("yt_token");
+			// Dispatch custom event to notify Auth context
+			window.dispatchEvent(new Event("tokenExpired"));
+			// Redirect to home page (where login button is visible in navbar)
+			window.location.href = "/";
+		}
+		return Promise.reject(error);
+	},
+);
+
 // Video API endpoints
 export const videoAPI = {
 	// Single video operations

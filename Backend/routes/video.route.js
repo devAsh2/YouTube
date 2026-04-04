@@ -21,18 +21,11 @@ export function videoRoutes(app) {
 	// Get all videos (public)
 	app.get("/api/videos", fetchVideos);
 	// Search video route by title (public - must be before :id routes)
-	app.get(
-		"/api/videos/search",
-		handleSearchValidation,
-		searchVideos,
-	);
+	app.get("/api/videos/search", handleSearchValidation, searchVideos);
 	// Filter videos by category (public - must be before :id routes)
-	app.get(
-		"/api/videos/category/:category",
-		filterVidoesByCategory,
-	);
-	// Get a specific video (public)
-	app.get("/api/videos/:id", authenticateToken, fetchVideo);
+	app.get("/api/videos/category/:category", filterVidoesByCategory);
+	// Get a specific video
+	app.get("/api/videos/:id", fetchVideo);
 	// Post a video
 	app.post(
 		"/api/videos",
@@ -54,9 +47,9 @@ export function videoRoutes(app) {
 		checkVideoOwnership,
 		deleteVideo,
 	);
-	// video like and dislike routes:
+	// video like and dislike routes (require auth):
 	app.post("/api/videos/:id/like", authenticateToken, likeVideo);
 	app.post("/api/videos/:id/dislike", authenticateToken, dislikeVideo);
-	// video view increment route:
+	// video view increment route (require auth):
 	app.post("/api/videos/:id/view", authenticateToken, incrementView);
 }
