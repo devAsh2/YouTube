@@ -1,4 +1,5 @@
 import { handleDatabaseError } from "../middleware/validation.middleware.js";
+import { Channel } from "../models/Channel.model.js";
 import { Video } from "../models/Video.model.js";
 
 //Function to post a video
@@ -22,7 +23,7 @@ export const uploadVideo = async (req, res) => {
 		await Channel.findByIdAndUpdate(
 			channelId,
 			{ $push: { videos: video._id } },
-			{ new: true, runValidators: true },
+			{ returnDocument: "after", runValidators: true },
 		);
 
 		return res.status(201).json({
@@ -220,7 +221,7 @@ export const incrementView = async (req, res) => {
 			{
 				$inc: { views: 1 },
 			},
-			{ new: true },
+			{ returnDocument: "after" },
 		);
 		res.status(200).json({
 			success: true,
