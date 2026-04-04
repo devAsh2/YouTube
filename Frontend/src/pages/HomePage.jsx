@@ -6,7 +6,7 @@ import { videoAPI } from "../services/api";
 import FilterBar from "../components/FilterBar";
 import VideoCard from "../components/VideoCard";
 
-export default function Home() {
+export default function HomePage() {
 	const [activeFilter, setActiveFilter] = useState("All");
 	const [videos, setVideos] = useState([]);
 	const [loading, setLoading] = useState(true);

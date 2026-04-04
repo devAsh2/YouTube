@@ -144,7 +144,7 @@ export const filterVidoesByCategory = async (req, res) => {
 	}
 };
 
-// LIke and dislike functionality
+// Like and dislike functionality
 export const likeVideo = async (req, res) => {
 	try {
 		const videoId = req.params.id;
@@ -217,7 +217,7 @@ export const dislikeVideo = async (req, res) => {
 	}
 };
 
-// view increment functionality
+// View increment functionality
 export const incrementView = async (req, res) => {
 	try {
 		const video = await Video.findByIdAndUpdate(

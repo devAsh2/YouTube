@@ -4,8 +4,8 @@ import { ThemeProvider } from "./hooks/ThemeContext";
 import { AuthProvider } from "./hooks/AuthContext";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import Home from "./pages/Home";
-import Auth from "./pages/Auth";
+import HomePage from "./pages/HomePage";
+import AuthPage from "./pages/AuthPage";
 import VideoPage from "./pages/VideoPage";
 import ChannelPage from "./pages/ChannelPage";
 
@@ -16,7 +16,7 @@ function App() {
 				<AuthProvider>
 					<SidebarProvider>
 						<Routes>
-							<Route path="/auth" element={<Auth />} />
+							<Route path="/auth" element={<AuthPage />} />
 							<Route
 								path="/*"
 								element={
@@ -26,7 +26,7 @@ function App() {
 											<Sidebar />
 											<main className="min-h-[calc(100vh-3.5rem)] min-w-0 flex-1 overflow-x-hidden">
 												<Routes>
-													<Route path="/" element={<Home />} />
+													<Route path="/" element={<HomePage />} />
 													<Route
 														path="/video/:videoId"
 														element={<VideoPage />}

@@ -4,7 +4,7 @@ import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { FaYoutube } from "react-icons/fa";
 import { useAuth } from "../hooks/AuthContext";
 
-export default function Auth() {
+export default function AuthPage() {
 	const [isLogin, setIsLogin] = useState(true);
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");

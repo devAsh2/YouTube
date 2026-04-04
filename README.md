@@ -39,11 +39,13 @@ YoutubeClone/
 │   ├── server.js
 │   └── package.json
 ├── Frontend/
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   ├── hooks/
-│   ├── App.jsx
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   ├── App.jsx
+│   │   └── main.jsx
 │   └── package.json
 └── README.md
 ```
@@ -72,48 +74,92 @@ YoutubeClone/
    npm install
    ```
 
-4. Set up environment variables:
-   - Copy `Backend/.env.example` to `Backend/.env`
-   - Update the MongoDB URI and JWT secret
+4. Set up backend environment variables:
 
-5. Start the backend server:
+   ```bash
+   cd Backend
+   cp .env.example .env
+   ```
+
+   If you are on Windows PowerShell, use:
+
+   ```powershell
+   cd Backend
+   Copy-Item .env.example .env
+   ```
+
+5. Update `Backend/.env` with your values:
+   - `PORT` - Backend server port (example: `8000`)
+   - `FRONTEND_URL` - Frontend origin for CORS (example: `http://localhost:5173`)
+   - `MONGODB_URI` - MongoDB connection URI
+   - `JWT_SECRET` - Secret key used to sign JWTs
+   - `JWT_EXPIRES_IN` - Token expiry (example: `7d`)
+
+6. Seed the database (recommended before first run):
+
+   ```bash
+   cd Backend
+   npm run seed
+   ```
+
+7. Start the backend server:
 
    ```bash
    cd Backend
    npm run dev
    ```
 
-6. Start the frontend development server:
+8. Start the frontend development server:
+
    ```bash
    cd Frontend
    npm run dev
    ```
 
+### Run Order (Quick Reference)
+
+1. Start MongoDB
+2. Configure `Backend/.env`
+3. Run `npm run seed` inside `Backend`
+4. Run `npm run dev` inside `Backend`
+5. Run `npm run dev` inside `Frontend`
+
 ## 🌐 API Endpoints
 
 ### Authentication
 
-- `POST /auth/signup` - User registration
-- `POST /auth/login` - User login
+- `POST /api/signup` - User registration
+- `POST /api/login` - User login
+- `GET /api/profile` - Get current user profile (auth required)
 
 ### Videos
 
-- `GET /videos` - Get all videos
-- `POST /videos` - Upload video
-- `PUT /videos/:id` - Update video
-- `DELETE /videos/:id` - Delete video
+- `GET /api/videos` - Get all videos (public)
+- `GET /api/videos/:id` - Get a single video (public)
+- `GET /api/videos/search?q=...` - Search videos by title (public)
+- `GET /api/videos/category/:category` - Filter videos by category (public)
+- `POST /api/videos` - Upload video (auth required)
+- `PUT /api/videos/:id` - Update video (auth + ownership required)
+- `DELETE /api/videos/:id` - Delete video (auth + ownership required)
+- `POST /api/videos/:id/like` - Like/unlike a video (auth required)
+- `POST /api/videos/:id/dislike` - Dislike/undislike a video (auth required)
+- `POST /api/videos/:id/view` - Increment view count (auth required)
 
 ### Comments
 
-- `POST /comments` - Add comment
-- `GET /comments/:videoId` - Get video comments
-- `PUT /comments/:id` - Update comment
-- `DELETE /comments/:id` - Delete comment
+- `GET /api/comments/:videoId` - Get video comments (auth required)
+- `POST /api/comments` - Add comment (auth required)
+- `PUT /api/comments/:id` - Update comment (auth + ownership required)
+- `DELETE /api/comments/:id` - Delete comment (auth + ownership required)
 
 ### Channels
 
-- `POST /channels` - Create channel
-- `GET /channels/:id` - Get channel details
+- `GET /api/channels` - Get all channels (auth required)
+- `GET /api/channels/:id` - Get channel details (public)
+- `POST /api/channels` - Create channel (auth required)
+- `PUT /api/channels/:id` - Update channel (auth + ownership required)
+- `DELETE /api/channels/:id` - Delete channel (auth + ownership required)
+- `GET /api/channels/:channelId/videos` - Get videos for a channel (public)
 
 ## 📱 Usage
 
@@ -121,10 +167,15 @@ YoutubeClone/
 2. Create an account or login
 3. Browse videos, upload content, and interact with the community
 
+## 🧪 Test Data (For Evaluator)
+
+Use the following values when testing the Create Video flow. Replace placeholders with working links before submission.
+
+- Thumbnail URL 1: `https://www.w3schools.com/html/pic_trulli.jpg`
+- Thumbnail URL 2: `<ADD_THUMBNAIL_URL_2>`
+- Video URL 1: `https://www.w3schools.com/html/mov_bbb.mp4`
+- Video URL 2: `<ADD_VIDEO_URL_2>`
+
 ## 🤝 Contributing
 
 This project is part of an internship assignment. Please follow the existing code style and commit conventions.
-
-## 📄 License
-
-This project is licensed under the ISC License.
