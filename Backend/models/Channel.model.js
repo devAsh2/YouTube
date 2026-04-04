@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+const handlePattern = /^@[a-z0-9._]+$/;
+
 const channelSchema = new mongoose.Schema(
 	{
 		channelName: {
@@ -7,6 +9,14 @@ const channelSchema = new mongoose.Schema(
 			required: true,
 			trim: true,
 			minlength: 3,
+		},
+		handle: {
+			type: String,
+			required: true,
+			unique: true,
+			trim: true,
+			lowercase: true,
+			match: handlePattern,
 		},
 		owner: {
 			type: mongoose.Schema.Types.ObjectId,

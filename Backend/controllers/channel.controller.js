@@ -3,12 +3,34 @@ import { Video } from "../models/Video.model.js";
 import { User } from "../models/User.model.js";
 import { handleDatabaseError } from "../middleware/validation.middleware.js";
 
+const buildHandle = (handle, channelName) => {
+	const source = (handle || channelName || "")
+		.trim()
+		.toLowerCase()
+		.replace(/^@+/, "")
+		.replace(/\s+/g, "")
+		.replace(/[^a-z0-9._]/g, "");
+
+	return source ? `@${source}` : "";
+};
+
 export const createChannel = async (req, res) => {
 	try {
-		const { channelName, description, channelBanner } = req.body;
+		const { channelName, handle, description, channelBanner } = req.body;
+		const existingOwner = await User.findById(req.userId).select("channels");
+
+		if (existingOwner?.channels?.length) {
+			return res.status(409).json({
+				success: false,
+				error: "You already have a channel",
+			});
+		}
+
+		const normalizedHandle = buildHandle(handle, channelName);
 
 		const channel = await Channel.create({
 			channelName,
+			handle: normalizedHandle,
 			description,
 			channelBanner,
 			owner: req.userId,
