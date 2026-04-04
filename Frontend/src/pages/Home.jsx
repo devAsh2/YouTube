@@ -74,8 +74,8 @@ export default function Home() {
 				onFilterChange={handleFilterChange}
 			/>
 
-			<div className="p-4 sm:p-6">
-				<div className="mx-auto max-w-7xl">
+			<div className="px-4 pb-4 pt-8 sm:px-6 sm:pb-6 sm:pt-10">
+				<div className="mx-auto mt-6 max-w-7xl sm:mt-8">
 					{loading ? (
 						<p className="mt-10 text-center text-gray-500 dark:text-gray-400">
 							Loading videos...
