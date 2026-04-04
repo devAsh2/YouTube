@@ -30,7 +30,16 @@ export default function Auth() {
 		setIsLoading(false);
 
 		if (result.success) {
-			navigate("/");
+			if (isLogin) {
+				navigate("/");
+			} else {
+				// Redirect to login page after successful signup
+				setIsLogin(true);
+				setEmail("");
+				setPassword("");
+				setUsername("");
+				setError(""); // Clear any errors
+			}
 		} else {
 			setError(result.message);
 		}
