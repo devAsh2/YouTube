@@ -13,7 +13,8 @@ export const useVideo = (videoId) => {
 				setError(null);
 				const response = await videoAPI.getVideo(videoId);
 				setVideo(response.data.fetchedVideo);
-				await videoAPI.incrementView(videoId);
+				const incrementResponse = await videoAPI.incrementView(videoId);
+				setVideo(incrementResponse.data.video);
 			} catch (err) {
 				setError(err.response?.data?.error || "Failed to fetch video");
 			} finally {

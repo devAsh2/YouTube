@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { FaYoutube } from "react-icons/fa";
 import { useAuth } from "../hooks/AuthContext";
 
 export default function Auth() {
@@ -49,11 +50,7 @@ export default function Auth() {
 				{/* Logo */}
 				<div className="mb-8 flex flex-col items-center">
 					<div className="mb-3 flex items-center gap-1">
-						<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-600">
-							<svg viewBox="0 0 24 24" className="h-5 w-5 fill-white">
-								<polygon points="10,8 16,12 10,16" />
-							</svg>
-						</div>
+						<FaYoutube size={32} className="text-red-600" />
 						<span className="text-2xl font-bold tracking-tighter text-black dark:text-white">
 							YouTube
 						</span>

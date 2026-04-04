@@ -6,9 +6,22 @@
 	--font-roboto: "Roboto", sans-serif;
 }
 
+html,
+body,
+#root {
+	min-height: 100%;
+}
+
 body {
 	margin: 0;
 	font-family: var(--font-roboto);
+	background-color: #ffffff;
+	color: #09090b;
+}
+
+html.dark body {
+	background-color: #18181b;
+	color: #ffffff;
 }
 
 /* Scrollbar styling for filter bar */
@@ -49,7 +62,7 @@ body {
 	.video-page-content {
 		grid-template-columns: 1fr;
 	}
-	
+
 	.video-sidebar {
 		order: 2;
 	}
@@ -69,7 +82,9 @@ body {
 	margin-bottom: 16px;
 }
 
-.like-btn, .dislike-btn, .share-btn {
+.like-btn,
+.dislike-btn,
+.share-btn {
 	padding: 8px 16px;
 	border: none;
 	border-radius: 18px;
@@ -80,7 +95,9 @@ body {
 	transition: background-color 0.2s;
 }
 
-.like-btn:hover, .dislike-btn:hover, .share-btn:hover {
+.like-btn:hover,
+.dislike-btn:hover,
+.share-btn:hover {
 	background: #e5e5e5;
 }
 

@@ -21,6 +21,7 @@ import {
 	UserCog,
 	X,
 } from "lucide-react";
+import { FaYoutube } from "react-icons/fa";
 import { useSidebar } from "../hooks/SidebarContext";
 import { useTheme } from "../hooks/ThemeContext";
 import { useAuth } from "../hooks/AuthContext";
@@ -97,11 +98,7 @@ export default function Navbar() {
 					to="/"
 					className="flex items-center gap-0.5 text-lg font-bold no-underline"
 				>
-					<div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600">
-						<svg viewBox="0 0 24 24" className="h-4 w-4 fill-white">
-							<polygon points="10,8 16,12 10,16" />
-						</svg>
-					</div>
+					<FaYoutube size={24} className="text-red-600" />
 					<span className="ml-0.5 text-xl tracking-tighter text-black dark:text-white">
 						YouTube
 					</span>
