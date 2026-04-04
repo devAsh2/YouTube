@@ -50,6 +50,6 @@ export function videoRoutes(app) {
 	// video like and dislike routes (require auth):
 	app.post("/api/videos/:id/like", authenticateToken, likeVideo);
 	app.post("/api/videos/:id/dislike", authenticateToken, dislikeVideo);
-	// video view increment route (require auth):
-	app.post("/api/videos/:id/view", authenticateToken, incrementView);
+	// video view increment route (public - view count is informational):
+	app.post("/api/videos/:id/view", incrementView);
 }

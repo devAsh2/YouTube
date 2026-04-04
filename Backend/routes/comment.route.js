@@ -9,7 +9,7 @@ import { checkCommentOwnership } from "../middleware/ownership.middleware.js";
 
 export function commentRoutes(app) {
 	// Get comments for a specific video
-	app.get("/api/comments/:videoId", authenticateToken, fetchComments);
+	app.get("/api/comments/:videoId", fetchComments);
 	// Create a new comment
 	app.post("/api/comments", authenticateToken, createComment);
 	// Update a comment
