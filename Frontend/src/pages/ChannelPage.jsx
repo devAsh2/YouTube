@@ -103,11 +103,12 @@ export default function ChannelPage() {
 	}
 
 	const channelHandle =
+		channel.handle ||
 		"@" +
-		channel.channelName
-			.toLowerCase()
-			.replace(/\s+/g, "")
-			.replace(/[^a-z0-9_]/g, "");
+			channel.channelName
+				.toLowerCase()
+				.replace(/\s+/g, "")
+				.replace(/[^a-z0-9._]/g, "");
 
 	return (
 		<div className="mx-auto max-w-6xl">

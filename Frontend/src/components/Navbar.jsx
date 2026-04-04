@@ -1,15 +1,25 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-	Menu,
-	Search,
-	Sun,
-	Moon,
-	UserCircle,
-	X,
+	ChevronRight,
+	CircleDollarSign,
+	Globe,
+	HelpCircle,
+	Keyboard,
+	Languages,
 	LogOut,
+	Menu,
+	Moon,
+	MoonStar,
 	PlusCircle,
+	Search,
+	Settings,
+	Shield,
+	Sun,
 	Tv,
+	UserCircle,
+	UserCog,
+	X,
 } from "lucide-react";
 import { useSidebar } from "../hooks/SidebarContext";
 import { useTheme } from "../hooks/ThemeContext";
@@ -29,6 +39,24 @@ export default function Navbar() {
 	const [showUserMenu, setShowUserMenu] = useState(false);
 	const [showCreateChannel, setShowCreateChannel] = useState(false);
 	const menuRef = useRef(null);
+	const channelId = user?.channels?.[0];
+
+	const closeMenu = () => setShowUserMenu(false);
+
+	const openCreateChannel = () => {
+		closeMenu();
+		setShowCreateChannel(true);
+	};
+
+	const viewChannel = () => {
+		if (!channelId) return;
+		closeMenu();
+		navigate(`/channel/${channelId}`);
+	};
+
+	const menuButtonClass =
+		"flex w-full items-center gap-3 px-4 py-2.5 text-sm text-white transition hover:bg-white/10";
+	const menuRowClass = `${menuButtonClass} justify-between`;
 
 	// Close user menu on outside click
 	useEffect(() => {
@@ -151,9 +179,9 @@ export default function Navbar() {
 							/>
 						</button>
 						{showUserMenu && (
-							<div className="absolute right-0 mt-2 w-64 rounded-xl border border-gray-200 bg-white py-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+							<div className="absolute right-0 mt-2 max-h-[70vh] w-80 overflow-y-auto rounded-2xl border border-zinc-700 bg-zinc-900 py-2 text-white shadow-2xl">
 								{/* User info header */}
-								<div className="border-b border-gray-200 px-4 pb-3 dark:border-zinc-700">
+								<div className="border-b border-zinc-700 px-4 pb-4">
 									<div className="flex items-center gap-3">
 										<img
 											src={user.avatar}
@@ -161,77 +189,125 @@ export default function Navbar() {
 											className="h-10 w-10 rounded-full object-cover"
 										/>
 										<div className="min-w-0">
-											<p className="text-sm font-medium text-gray-900 dark:text-white">
+											<p className="text-sm font-medium text-white">
 												{user.username}
 											</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400">
-												@{user.username}
-											</p>
-											{/* Channel link or create */}
-											{user.channels?.length > 0 ? (
-												<button
-													onClick={() => {
-														setShowUserMenu(false);
-														navigate(`/channel/${user.channels[0]}`);
-													}}
-													className="mt-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-												>
-													View your channel
-												</button>
-											) : (
-												<button
-													onClick={() => {
-														setShowUserMenu(false);
-														setShowCreateChannel(true);
-													}}
-													className="mt-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-												>
-													Create a channel
-												</button>
-											)}
+											<p className="text-xs text-zinc-400">@{user.username}</p>
+											<button
+												onClick={channelId ? viewChannel : openCreateChannel}
+												className="mt-1 text-xs font-medium text-sky-400 hover:text-sky-300"
+											>
+												{channelId ? "View your channel" : "Create a channel"}
+											</button>
 										</div>
 									</div>
 								</div>
 
-								{/* Channel actions */}
-								{user.channels?.length > 0 ? (
+								<div className="py-1">
 									<button
-										onClick={() => {
-											setShowUserMenu(false);
-											navigate(`/channel/${user.channels[0]}`);
-										}}
-										className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+										onClick={viewChannel}
+										disabled={!channelId}
+										className={`${menuButtonClass} disabled:cursor-default disabled:opacity-50`}
 									>
 										<Tv size={18} />
 										Your channel
 									</button>
-								) : (
+									{!channelId && (
+										<button
+											onClick={openCreateChannel}
+											className={menuButtonClass}
+										>
+											<PlusCircle size={18} />
+											Create a channel
+										</button>
+									)}
+								</div>
+
+								<div className="my-1 border-t border-zinc-700" />
+
+								<div className="py-1">
+									<button className={`${menuButtonClass} cursor-default`}>
+										<UserCog size={18} />
+										Google Account
+									</button>
+									<button className={menuRowClass}>
+										<span className="flex items-center gap-3">
+											<UserCircle size={18} />
+											Switch account
+										</span>
+										<ChevronRight size={16} className="text-zinc-400" />
+									</button>
 									<button
 										onClick={() => {
-											setShowUserMenu(false);
-											setShowCreateChannel(true);
+											logout();
+											closeMenu();
 										}}
-										className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+										className={menuButtonClass}
 									>
-										<PlusCircle size={18} />
-										Create a channel
+										<LogOut size={18} />
+										Sign out
 									</button>
-								)}
+								</div>
 
-								{/* Divider */}
-								<div className="my-1 border-t border-gray-200 dark:border-zinc-700" />
+								<div className="my-1 border-t border-zinc-700" />
 
-								{/* Sign out */}
-								<button
-									onClick={() => {
-										logout();
-										setShowUserMenu(false);
-									}}
-									className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
-								>
-									<LogOut size={18} />
-									Sign out
-								</button>
+								<div className="py-1">
+									<button className={menuButtonClass}>
+										<Tv size={18} />
+										YouTube Studio
+									</button>
+									<button className={menuButtonClass}>
+										<CircleDollarSign size={18} />
+										Purchases and memberships
+									</button>
+									<button className={menuButtonClass}>
+										<Shield size={18} />
+										Your data in YouTube
+									</button>
+								</div>
+
+								<div className="my-1 border-t border-zinc-700" />
+
+								<div className="py-1">
+									<button onClick={toggleTheme} className={menuRowClass}>
+										<span className="flex items-center gap-3">
+											<MoonStar size={18} />
+											Appearance: {darkMode ? "Dark theme" : "Light theme"}
+										</span>
+										<ChevronRight size={16} className="text-zinc-400" />
+									</button>
+									<button className={menuRowClass}>
+										<span className="flex items-center gap-3">
+											<Languages size={18} />
+											Display language: English
+										</span>
+										<ChevronRight size={16} className="text-zinc-400" />
+									</button>
+									<button className={menuRowClass}>
+										<span className="flex items-center gap-3">
+											<Globe size={18} />
+											Location: India
+										</span>
+										<ChevronRight size={16} className="text-zinc-400" />
+									</button>
+									<button className={menuButtonClass}>
+										<Keyboard size={18} />
+										Keyboard shortcuts
+									</button>
+								</div>
+
+								<div className="my-1 border-t border-zinc-700" />
+
+								<div className="py-1">
+									<button className={menuButtonClass}>
+										<Settings size={18} />
+										Settings
+									</button>
+									<button className={menuButtonClass}>
+										<HelpCircle size={18} />
+										Help
+									</button>
+								</div>
 							</div>
 						)}
 					</div>

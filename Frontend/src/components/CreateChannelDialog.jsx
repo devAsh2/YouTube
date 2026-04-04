@@ -7,27 +7,41 @@ export default function CreateChannelDialog({ onClose, onCreated }) {
 	const { user, setUser } = useAuth();
 	const [channelName, setChannelName] = useState(user?.username || "");
 	const [handle, setHandle] = useState("");
+	const [isHandleDirty, setIsHandleDirty] = useState(false);
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Auto-generate handle from channel name
-	useEffect(() => {
-		const generated = channelName
+	const buildHandle = (value) => {
+		const normalized = value
 			.trim()
 			.toLowerCase()
+			.replace(/^@+/, "")
 			.replace(/\s+/g, "")
-			.replace(/[^a-z0-9_]/g, "");
-		setHandle(generated ? `@${generated}` : "");
-	}, [channelName]);
+			.replace(/[^a-z0-9._]/g, "");
+
+		return normalized ? `@${normalized}` : "";
+	};
+
+	useEffect(() => {
+		if (!isHandleDirty) {
+			setHandle(buildHandle(channelName));
+		}
+	}, [channelName, isHandleDirty]);
+
+	useEffect(() => {
+		setHandle(buildHandle(user?.username || ""));
+	}, [user?.username]);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
 		setIsLoading(true);
+		const normalizedHandle = buildHandle(handle || channelName);
 
 		try {
 			const response = await channelAPI.createChannel({
 				channelName: channelName.trim(),
+				handle: normalizedHandle,
 			});
 			const newChannel = response.data.createdChannel;
 
@@ -50,10 +64,10 @@ export default function CreateChannelDialog({ onClose, onCreated }) {
 
 	return (
 		<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-			<div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900">
+			<div className="w-full max-w-2xl rounded-2xl bg-white px-8 py-7 shadow-xl dark:bg-zinc-900">
 				{/* Header */}
-				<div className="mb-6 flex items-center justify-between">
-					<h2 className="text-xl font-medium text-gray-900 dark:text-white">
+				<div className="mb-8 flex items-start justify-between">
+					<h2 className="text-2xl font-medium text-gray-900 dark:text-white">
 						How you'll appear
 					</h2>
 					<button
@@ -65,11 +79,11 @@ export default function CreateChannelDialog({ onClose, onCreated }) {
 				</div>
 
 				{/* Avatar Preview */}
-				<div className="mb-6 flex flex-col items-center">
+				<div className="mb-8 flex justify-center">
 					<img
 						src={user?.avatar}
 						alt={user?.username}
-						className="h-20 w-20 rounded-full object-cover"
+						className="h-24 w-24 rounded-full object-cover"
 					/>
 				</div>
 
@@ -105,10 +119,24 @@ export default function CreateChannelDialog({ onClose, onCreated }) {
 						<input
 							type="text"
 							value={handle}
-							readOnly
-							className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 outline-none dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-gray-400"
+							onChange={(e) => {
+								setIsHandleDirty(true);
+								setHandle(e.target.value);
+							}}
+							placeholder="@yourhandle"
+							className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400"
 						/>
+						<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+							YouTube suggests a handle from your name, but you can edit it
+							here.
+						</p>
 					</div>
+
+					<p className="text-xs leading-5 text-gray-500 dark:text-gray-400">
+						By clicking Create channel you agree to YouTube's Terms of Service.
+						Changes made to your name and profile picture are visible only on
+						YouTube in this app.
+					</p>
 
 					{/* Actions */}
 					<div className="flex items-center justify-end gap-3 pt-2">
