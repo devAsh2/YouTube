@@ -3,11 +3,13 @@ import { useParams, Link } from "react-router-dom";
 import { MoreVertical, Pencil, Trash2, Loader2 } from "lucide-react";
 import { channelAPI, videoAPI } from "../services/api";
 import { useAuth } from "../hooks/AuthContext";
+import { useSidebar } from "../hooks/SidebarContext";
 import { formatViews, timeAgo } from "../utils/formatters";
 
 export default function ChannelPage() {
 	const { channelId } = useParams();
 	const { user } = useAuth();
+	const { isOpen } = useSidebar();
 	const [channel, setChannel] = useState(null);
 	const [videos, setVideos] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -86,7 +88,9 @@ export default function ChannelPage() {
 
 	if (loading) {
 		return (
-			<div className="flex h-[60vh] items-center justify-center">
+			<div
+				className={`flex h-[60vh] items-center justify-center transition-all duration-200 ${isOpen ? "md:ml-60" : "ml-0"}`}
+			>
 				<Loader2 className="h-8 w-8 animate-spin text-gray-400" />
 			</div>
 		);
@@ -94,7 +98,9 @@ export default function ChannelPage() {
 
 	if (error || !channel) {
 		return (
-			<div className="flex h-[60vh] items-center justify-center">
+			<div
+				className={`flex h-[60vh] items-center justify-center transition-all duration-200 ${isOpen ? "md:ml-60" : "ml-0"}`}
+			>
 				<p className="text-gray-500 dark:text-gray-400">
 					{error || "Channel not found"}
 				</p>
@@ -111,140 +117,144 @@ export default function ChannelPage() {
 				.replace(/[^a-z0-9._]/g, "");
 
 	return (
-		<div className="mx-auto max-w-6xl">
-			{/* Banner */}
-			<div
-				className="h-28 w-full rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 sm:h-40"
-				style={
-					channel.channelBanner
-						? {
-								backgroundImage: `url(${channel.channelBanner})`,
-								backgroundSize: "cover",
-								backgroundPosition: "center",
-							}
-						: {}
-				}
-			/>
-
-			{/* Channel info */}
-			<div className="flex flex-col items-start gap-4 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
-				{/* Avatar */}
-				<img
-					src={
-						channel.owner?.avatar ||
-						`https://ui-avatars.com/api/?name=${encodeURIComponent(channel.channelName.charAt(0))}&background=random&color=fff&size=128`
+		<div
+			className={`transition-all duration-200 ${isOpen ? "md:ml-60" : "ml-0"}`}
+		>
+			<div className="mx-auto max-w-6xl px-4 sm:px-6">
+				{/* Banner */}
+				<div
+					className="h-28 w-full rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 sm:h-40"
+					style={
+						channel.channelBanner
+							? {
+									backgroundImage: `url(${channel.channelBanner})`,
+									backgroundSize: "cover",
+									backgroundPosition: "center",
+								}
+							: {}
 					}
-					alt={channel.channelName}
-					className="h-16 w-16 rounded-full object-cover sm:h-20 sm:w-20"
 				/>
-				<div className="min-w-0 flex-1">
-					<h1 className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
-						{channel.channelName}
-					</h1>
-					<div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-gray-500 dark:text-gray-400">
-						<span>{channelHandle}</span>
-						<span>&bull;</span>
-						<span>
-							{formatViews(channel.subscribers || 0)} subscriber
-							{channel.subscribers !== 1 ? "s" : ""}
-						</span>
-						<span>&bull;</span>
-						<span>
-							{videos.length} video{videos.length !== 1 ? "s" : ""}
-						</span>
-					</div>
-					{channel.description && (
-						<p className="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
-							{channel.description}
-						</p>
-					)}
-				</div>
-			</div>
 
-			{/* Videos tab */}
-			<div className="border-b border-gray-200 px-4 sm:px-6 dark:border-zinc-700">
-				<div className="inline-block border-b-2 border-gray-900 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white dark:text-white">
-					Videos
-				</div>
-			</div>
-
-			{/* Videos grid */}
-			{videos.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-20 text-gray-500 dark:text-gray-400">
-					<p className="text-lg font-medium">No videos yet</p>
-					<p className="mt-1 text-sm">
-						{isOwner
-							? "Upload your first video to get started"
-							: "This channel hasn't uploaded any videos yet"}
-					</p>
-				</div>
-			) : (
-				<div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-3 xl:grid-cols-4">
-					{videos.map((video) => (
-						<div key={video._id} className="group relative">
-							<Link to={`/video/${video._id}`} className="block no-underline">
-								{/* Thumbnail */}
-								<div className="relative w-full overflow-hidden rounded-xl">
-									<img
-										src={video.thumbnailUrl}
-										alt={video.title}
-										className="aspect-video w-full object-cover transition-transform duration-200 group-hover:scale-105"
-										loading="lazy"
-									/>
-								</div>
-								{/* Info */}
-								<div className="mt-3 pr-8">
-									<h3 className="line-clamp-2 text-sm font-medium leading-5 text-gray-900 dark:text-white">
-										{video.title}
-									</h3>
-									<p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-										{formatViews(video.views)} views &bull;{" "}
-										{timeAgo(video.createdAt)}
-									</p>
-								</div>
-							</Link>
-
-							{/* Owner 3-dot menu */}
-							{isOwner && (
-								<div className="absolute right-0 top-[calc(100%-2.5rem)]">
-									<button
-										onClick={(e) => {
-											e.preventDefault();
-											setOpenMenuId(
-												openMenuId === video._id ? null : video._id,
-											);
-										}}
-										className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-700"
-									>
-										<MoreVertical size={16} />
-									</button>
-									{openMenuId === video._id && (
-										<div className="absolute right-0 z-10 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
-											<button
-												onClick={() => openEdit(video)}
-												className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
-											>
-												<Pencil size={14} />
-												Edit
-											</button>
-											<button
-												onClick={() => {
-													setOpenMenuId(null);
-													handleDelete(video._id);
-												}}
-												className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-zinc-700"
-											>
-												<Trash2 size={14} />
-												Delete
-											</button>
-										</div>
-									)}
-								</div>
-							)}
+				{/* Channel info */}
+				<div className="flex flex-col items-start gap-4 py-4 sm:flex-row sm:items-center">
+					{/* Avatar */}
+					<img
+						src={
+							channel.owner?.avatar ||
+							`https://ui-avatars.com/api/?name=${encodeURIComponent(channel.channelName.charAt(0))}&background=random&color=fff&size=128`
+						}
+						alt={channel.channelName}
+						className="h-16 w-16 rounded-full object-cover sm:h-20 sm:w-20"
+					/>
+					<div className="min-w-0 flex-1">
+						<h1 className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
+							{channel.channelName}
+						</h1>
+						<div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-gray-500 dark:text-gray-400">
+							<span>{channelHandle}</span>
+							<span>&bull;</span>
+							<span>
+								{formatViews(channel.subscribers || 0)} subscriber
+								{channel.subscribers !== 1 ? "s" : ""}
+							</span>
+							<span>&bull;</span>
+							<span>
+								{videos.length} video{videos.length !== 1 ? "s" : ""}
+							</span>
 						</div>
-					))}
+						{channel.description && (
+							<p className="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+								{channel.description}
+							</p>
+						)}
+					</div>
 				</div>
-			)}
+
+				{/* Videos tab */}
+				<div className="border-b border-gray-200 dark:border-zinc-700">
+					<div className="inline-block border-b-2 border-gray-900 px-4 py-3 text-sm font-medium text-gray-900 dark:border-white dark:text-white">
+						Videos
+					</div>
+				</div>
+
+				{/* Videos grid */}
+				{videos.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-20 text-gray-500 dark:text-gray-400">
+						<p className="text-lg font-medium">No videos yet</p>
+						<p className="mt-1 text-sm">
+							{isOwner
+								? "Upload your first video to get started"
+								: "This channel hasn't uploaded any videos yet"}
+						</p>
+					</div>
+				) : (
+					<div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-3 xl:grid-cols-4">
+						{videos.map((video) => (
+							<div key={video._id} className="group relative">
+								<Link to={`/video/${video._id}`} className="block no-underline">
+									{/* Thumbnail */}
+									<div className="relative w-full overflow-hidden rounded-xl">
+										<img
+											src={video.thumbnailUrl}
+											alt={video.title}
+											className="aspect-video w-full object-cover transition-transform duration-200 group-hover:scale-105"
+											loading="lazy"
+										/>
+									</div>
+									{/* Info */}
+									<div className="mt-3 pr-8">
+										<h3 className="line-clamp-2 text-sm font-medium leading-5 text-gray-900 dark:text-white">
+											{video.title}
+										</h3>
+										<p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+											{formatViews(video.views)} views &bull;{" "}
+											{timeAgo(video.createdAt)}
+										</p>
+									</div>
+								</Link>
+
+								{/* Owner 3-dot menu */}
+								{isOwner && (
+									<div className="absolute right-0 top-[calc(100%-2.5rem)]">
+										<button
+											onClick={(e) => {
+												e.preventDefault();
+												setOpenMenuId(
+													openMenuId === video._id ? null : video._id,
+												);
+											}}
+											className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-zinc-700"
+										>
+											<MoreVertical size={16} />
+										</button>
+										{openMenuId === video._id && (
+											<div className="absolute right-0 z-10 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
+												<button
+													onClick={() => openEdit(video)}
+													className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+												>
+													<Pencil size={14} />
+													Edit
+												</button>
+												<button
+													onClick={() => {
+														setOpenMenuId(null);
+														handleDelete(video._id);
+													}}
+													className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-zinc-700"
+												>
+													<Trash2 size={14} />
+													Delete
+												</button>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+						))}
+					</div>
+				)}
+			</div>
 
 			{/* Edit Video Modal */}
 			{editingVideo && (
